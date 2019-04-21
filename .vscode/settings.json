@@ -1,0 +1,10 @@
+{
+  "emmet.includeLanguages": {
+    "javascript": "javascriptreact"
+  },
+  "editor.wordWrap": "on",
+  "emmet.syntaxProfiles": {
+    "javascript": "jsx"
+  },
+  "editor.formatOnSave": true
+}
