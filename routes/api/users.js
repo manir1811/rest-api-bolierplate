@@ -7,6 +7,10 @@ const passport = require("passport");
 
 const keys = require("../../config/keys");
 
+// Load Register validation
+const validateRegisterInput = require("../../validation/register");
+const validateLoginInput = require("../../validation/login");
+
 // Load User model
 const User = require("../../models/User");
 
@@ -21,9 +25,16 @@ router.get("/test", (req, res) => {
 // @desc:   Register user route
 // @access: Public
 router.post("/register", (req, res) => {
+  const { errors, isValid } = validateRegisterInput(req.body);
+  // Check validation
+  if (!isValid) {
+    return res.status(400).json(errors);
+  }
+
   User.findOne({ email: req.body.email }).then(user => {
     if (user) {
-      return res.status(400).json({ email: "Email already exists" });
+      errors.email = "Email already exists";
+      return res.status(400).json(errors);
     } else {
       const avatar = gravatar.url(req.body.email, {
         s: "200", // Size
@@ -56,6 +67,11 @@ router.post("/register", (req, res) => {
 // @desc:   Login User
 // @access: Public
 router.post("/login", (req, res) => {
+  const { errors, isValid } = validateLoginInput(req.body);
+  // Check validation
+  if (!isValid) {
+    return res.status(400).json(errors);
+  }
   const email = req.body.email;
   const password = req.body.password;
 
@@ -63,7 +79,8 @@ router.post("/login", (req, res) => {
   User.findOne({ email: email }).then(user => {
     // Check if user exists
     if (!user) {
-      return res.status(404).json({ email: "Email does not exit" });
+      errors.email = "Email does not exist";
+      return res.status(404).json(errors);
     }
 
     // Check password
@@ -85,7 +102,8 @@ router.post("/login", (req, res) => {
           }
         );
       } else {
-        return res.status(404).json({ password: "Password incorrect" });
+        errors.password = "Password Incorrect";
+        return res.status(404).json(errors);
       }
     });
   });
